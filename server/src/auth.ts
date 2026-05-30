@@ -5,6 +5,9 @@ export const auth = betterAuth({
     database: new Pool({
         connectionString: process.env.DATABASE_URL,
     }),
+    advacned: {
+        generateId: () => crypto.randomUUID()
+    },
     trustedOrigins: [process.env.CLIENT_URL || "http://localhost:5173"],
     socialProviders: {
         google: {
