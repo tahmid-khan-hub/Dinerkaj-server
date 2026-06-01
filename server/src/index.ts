@@ -1,3 +1,4 @@
+/// <reference path="./types/express.d.ts" />
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -5,6 +6,7 @@ import express from "express";
 import cors from "cors";
 import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import { auth } from "./auth";
+import tasksRouter from "./routes/tasks";
 
 
 const app = express();
@@ -30,6 +32,9 @@ app.use(async(req, res, next) => {
     req.user = session?.user ?? null;
     next();
 }) 
+
+// tasks api
+app.use("/api/tasks", tasksRouter);
 
 app.get("/", (req, res) => {
     res.json({ message: "Dinerkaj server running" });

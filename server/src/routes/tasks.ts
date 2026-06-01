@@ -17,3 +17,24 @@ router.get("/", async(req: Request, res: Response) => {
     }
 })
 
+// POST /api/tasks
+router.post("/", async(req: Request, res: Response) => {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const { title, description, priority, due_date } = req.body;
+    if (!title) return res.status(400).json({ error: "Title is required" });
+
+    try {
+        const newUserTask = await pool.query(
+            `INSERT INTO tasks (user_id, title, description, priority, due_date) VALUES 
+            ($1, $2, $3, $4, $5) RETURNING *`,
+            [userId, title, description, priority, due_date]
+        );
+        res.status(201).json(newUserTask.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to create task" });
+    }
+})
+
+export default router;
