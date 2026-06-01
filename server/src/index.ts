@@ -3,7 +3,7 @@ dotenv.config();
 
 import express from "express";
 import cors from "cors";
-import { toNodeHandler } from "better-auth/node";
+import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import { auth } from "./auth";
 
 
@@ -19,8 +19,17 @@ app.use(cors({
 
 app.use(express.json());
 
-// Better Auth 
+// Better Auth, before session middleware
 app.all("/api/auth/*splat", toNodeHandler(auth));
+
+// session middleware, attaches user to every request
+app.use(async(req, res, next) => {
+    const session = await auth.api.getSession({
+        headers: fromNodeHeaders(req.headers),
+    })
+    req.user = session?.user ?? null;
+    next();
+}) 
 
 app.get("/", (req, res) => {
     res.json({ message: "Dinerkaj server running" });
