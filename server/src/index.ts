@@ -7,6 +7,7 @@ import cors from "cors";
 import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import { auth } from "./auth";
 import tasksRouter from "./routes/tasks";
+import recurringTasksRouter from "./routes/recurringTasks";
 
 
 const app = express();
@@ -35,6 +36,9 @@ app.use(async(req, res, next) => {
 
 // tasks api
 app.use("/api/tasks", tasksRouter);
+
+// recurringTasks api
+app.use("/api/recurring-tasks", recurringTasksRouter);
 
 app.get("/", (req, res) => {
     res.json({ message: "Dinerkaj server running" });
