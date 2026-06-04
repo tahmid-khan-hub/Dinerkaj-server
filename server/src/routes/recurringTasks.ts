@@ -60,4 +60,23 @@ router.patch("/generate", async(req: Request, res: Response) => {
     }
 })
 
+// DELETE /api/recurring-tasks/:id
+router.delete("/:id", async(req: Request, res: Response) => {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const { id } = req.params;
+    if(!id) return res.status(400).json({ error: "Routine ID is required" });
+
+    try {
+        const DeletingRoutine = await pool.query(`
+            DELETE FROM recurring_tasks WHERE id = $1 AND user_id = $2 RETURNING id`, [id, userId]);
+
+        if(DeletingRoutine.rowCount === 0) return res.status(404).json({ error: "Routine not found" });
+        res.json({ deleted: id });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to delete routine" });
+    }
+})
+
 export default router;
