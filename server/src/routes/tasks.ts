@@ -9,6 +9,12 @@ router.get("/", async(req: Request, res: Response) => {
     if(!userId) return res.status(401).json({ error: "Unauthorized" });
 
     try {
+        await pool.query(
+            `DELETE FROM tasks
+            WHERE user_id = $1
+            AND due_date < CURRENT_DATE`,
+            [userId]);
+
         const userTasks = await pool.query(
         `SELECT * FROM tasks WHERE user_id = $1 ORDER BY created_at DESC`, [userId]);
         res.json(userTasks.rows);

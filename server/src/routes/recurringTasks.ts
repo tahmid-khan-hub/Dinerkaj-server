@@ -11,7 +11,7 @@ router.get("/", async(req: Request, res: Response) => {
 
     try {
         const getAllRecurringTasks = await pool.query(`
-            SELECT * FROM recurring_tasks WHERE user_id = $1 ORDER BY created_at AT ASC`, [userId]);
+            SELECT * FROM recurring_tasks WHERE user_id = $1 ORDER BY created_at ASC`, [userId]);
         res.json(getAllRecurringTasks.rows)
     } catch (error) {
         res.status(500).json({ error: "Failed to fetch recurring tasks" });
@@ -53,7 +53,7 @@ router.patch("/generate", async(req: Request, res: Response) => {
             UPDATE recurring_tasks
             SET last_generated = CURRENT_DATE WHERE user_id = $1 AND
             (last_generated < CURRENT_DATE OR last_generated IS NULL)`, [userId]);
-            
+
         res.json({ generated: true });
     } catch (error) {
         res.status(500).json({ error: "Failed to generate recurring tasks" });
