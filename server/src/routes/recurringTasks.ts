@@ -36,4 +36,28 @@ router.post("/", async(req: Request, res: Response) => {
     }
 })
 
+// PATCH /api/recurring-tasks/generate
+router.patch("/generate", async(req: Request, res: Response) => {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    try {
+        await pool.query(`
+            INSERT INTO tasks (user_id, title, description, priority, due_date)
+            SELECT user_id, title, description, priority, CURRENT_DATE
+            FROM recurring_tasks
+            WHERE user_id = $1 AND
+            (last_generated < CURRENT_DATE OR last_generated IS NULL)`, [userId]);
+
+        await pool.query(`
+            UPDATE recurring_tasks
+            SET last_generated = CURRENT_DATE WHERE user_id = $1 AND
+            (last_generated < CURRENT_DATE OR last_generated IS NULL)`, [userId]);
+            
+        res.json({ generated: true });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to generate recurring tasks" });
+    }
+})
+
 export default router;
