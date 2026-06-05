@@ -43,8 +43,6 @@ router.post("/", async(req: Request, res: Response) => {
     }
 })
 
-export default router;
-
 // PATCH /api/tasks/:id/toggle
 router.patch("/:id/toggle", async(req: Request, res: Response) => {
     const userId = req.user?.id;
@@ -74,3 +72,24 @@ router.patch("/:id/toggle", async(req: Request, res: Response) => {
         res.status(500).json({ error: "Failed to toggle task" });
     }
 })
+
+// DELETE /api/tasks/:id
+router.delete("/:id", async(req: Request, res: Response) => {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const { id } = req.params;
+    if(!id) return res.status(400).json({ error: "Task Id is required" });
+
+    try {
+        const deletedTask = await pool.query(`
+            DELETE FROM tasks WHERE id = $1 AND user_id = $2 RETURNING id`, [id, userId]);
+
+        if (deletedTask.rowCount === 0) return res.status(404).json({ error: "Task not found" });
+        res.json({ deleted: id });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to delete task" });
+    }
+})
+
+export default router;
