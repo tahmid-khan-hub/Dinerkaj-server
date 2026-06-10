@@ -8,6 +8,7 @@ import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import { auth } from "./auth";
 import tasksRouter from "./routes/tasks";
 import recurringTasksRouter from "./routes/recurringTasks";
+import notesRouter from "./routes/notes";
 
 
 const app = express();
@@ -39,6 +40,9 @@ app.use("/api/tasks", tasksRouter);
 
 // recurringTasks api
 app.use("/api/recurring-tasks", recurringTasksRouter);
+
+// notes api
+app.use("/api/notes", notesRouter);
 
 app.get("/", (req, res) => {
     res.json({ message: "Dinerkaj server running" });
